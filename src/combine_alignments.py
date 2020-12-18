@@ -1,6 +1,5 @@
 import argparse
-
-OUTPUT_DIR = "../outputs/"
+from utility import OUTPUT_DIR
 
 
 """

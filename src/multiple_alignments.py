@@ -7,8 +7,7 @@ import process_data
 import combine_alignments
 import logging
 import argparse
-
-OUTPUT_DIR = "../outputs/"
+from utility import OUTPUT_DIR
 
 
 def write_result(chromosome, multiple_alignments):
