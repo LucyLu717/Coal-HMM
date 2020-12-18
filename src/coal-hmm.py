@@ -22,6 +22,9 @@ import emission_probs
 import multiple_alignments
 from math import exp
 import params
+import warnings
+
+warnings.filterwarnings("ignore")
 
 STATES = ["HC1", "HC2", "HG", "CG"]  # Hidden states
 FIGS_DIR = "../figs/"
@@ -284,7 +287,7 @@ def forward_backward(seq, trans_probs, emiss_probs, init_probs):
 """ Plots graph with marginal posterier probabilities."""
 
 
-def plot(R_st, Rcom_st, intervals, index, align_index, positions, length=10000):
+def plot(R_st, Rcom_st, intervals, index, align_index, positions, chr, length=10000):
     import matplotlib.pyplot as plt
 
     # Draw posterior probs with all four states
@@ -299,7 +302,9 @@ def plot(R_st, Rcom_st, intervals, index, align_index, positions, length=10000):
     if index == 3:
         plt.savefig(
             FIGS_DIR
-            + "{}-{} full posterior probability.png".format(positions[0], positions[1])
+            + "{} {}-{} full posterior probability {}.png".format(
+                chr, positions[0], positions[1], align_index
+            )
         )
 
     # Draw posterior probs with HC1 and HC2 combined
@@ -316,8 +321,8 @@ def plot(R_st, Rcom_st, intervals, index, align_index, positions, length=10000):
         if index == 3:
             plt.savefig(
                 FIGS_DIR
-                + "{}-{} HC combined posterior probability.png".format(
-                    positions[0], positions[1]
+                + "{} {}-{} HC combined posterior probability {}.png".format(
+                    chr, positions[0], positions[1], align_index
                 )
             )
 
@@ -327,7 +332,7 @@ def plot(R_st, Rcom_st, intervals, index, align_index, positions, length=10000):
         plt.figure(str(align_index) + "3", figsize=(20, 10))
         plt.subplot(211)
         plt.plot(bins, Rcom_st, label="{} probability".format(combined_states[index]))
-        plt.ticklabel_format(axis="x", style="plain")
+        plt.ticklabel_format(axis="x", style="plain", useOffset=False)
         plt.tight_layout()
         plt.legend(loc="best", fontsize="xx-small")
         plt.xlabel("sequence position")
@@ -349,7 +354,7 @@ def plot(R_st, Rcom_st, intervals, index, align_index, positions, length=10000):
                         break
 
         plt.plot(bins, viterbi, label="{} intervals".format(combined_states[index]))
-        plt.ticklabel_format(axis="x", style="plain")
+        plt.ticklabel_format(axis="x", style="plain", useOffset=False)
         plt.tight_layout()
         plt.legend(loc="best", fontsize="xx-small")
         plt.xlabel("Viterbi intervals")
@@ -357,23 +362,26 @@ def plot(R_st, Rcom_st, intervals, index, align_index, positions, length=10000):
         if index == 3:
             plt.savefig(
                 FIGS_DIR
-                + "{}-{} HC combined posterior probability with first {}kb.png".format(
-                    positions[0], positions[1], length // 1000
+                + "{} {}-{} HC combined posterior probability with first {}kb {}.png".format(
+                    chr, positions[0], positions[1], length // 1000, align_index
                 )
             )
 
 
 def main():
     parser = argparse.ArgumentParser(description="Arg parser for Coal-HMM")
-    parser.add_argument("-f", action="store", dest="f", type=str, required=True)
+    parser.add_argument("-f", action="store", dest="f", type=str, required=False)
     parser.add_argument("-out", action="store", dest="out", type=str, required=True)
+    parser.add_argument(
+        "-c", action="store", dest="chromosome", type=str, required=True
+    )
     parser.add_argument("--rerun", action="store_true", required=False)
 
     args = parser.parse_args()
     intervals_file = args.out
 
     if args.rerun:
-        sequences = multiple_alignments.get_multiple_alignments()
+        sequences = multiple_alignments.get_multiple_alignments(args.chromosome)
     else:
         sequences = read_seqs(args.f)
 
@@ -381,7 +389,7 @@ def main():
         (s, u, v1, v2), init_ps, (a, b, c, a_t, b_t, c_t), mu = params.get_params(
             len(alignments[1][0])
         )
-        print(s, u, v1, v2)
+        print(s, u, v1, v2, init_ps, (a, b, c, a_t, b_t, c_t))
 
         transition_probabilities = {
             "HC1": {
@@ -463,6 +471,7 @@ def main():
                 i,
                 align_index,
                 [int(i) for i in alignments[0][1:-1].split(",")],
+                args.chromosome,
             )
 
 

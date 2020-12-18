@@ -1,5 +1,5 @@
 """
-    Usage: python3 multiple_alignments.py > multiple_alignments.output
+    Usage: python3 multiple_alignments.py
 """
 
 
@@ -7,6 +7,24 @@ import process_data
 import combine_alignments
 import logging
 import argparse
+
+OUTPUT_DIR = "../outputs/"
+
+
+def write_result(chromosome, multiple_alignments):
+    file_name = OUTPUT_DIR + "multiple_alignments_" + chromosome + ".output"
+    with open(file_name, "w") as f:
+        count = 0
+        for pos, alignments in multiple_alignments:
+            count += 1
+            f.write(pos)
+            f.write("\n")
+            for a in alignments:
+                f.write(a)
+                f.write("\n")
+            if count < 3:
+                f.write("\n")
+
 
 """
 Reads output files from first.sh.
@@ -117,21 +135,9 @@ def get_combined_pairwise_alignments(final_pos, human_pos, human_a, other_a):
     )  # remove gaps in human, correct because final_pos excludes gaps and is the same across three pairwise alignments
 
 
-def print_result(multiple_alignments):
-    count = 0
-    for pos, alignments in multiple_alignments:
-        count += 1
-        print(pos)
-        for a in alignments:
-            print(a)
-        if count < 3:
-            print("")
-
-
-def get_multiple_alignments(debug=False):
+def get_multiple_alignments(chromosome, debug=False):
     if debug:
         logging.getLogger().setLevel(logging.DEBUG)
-    CHROMOSOME = "hg38.chr7"
     SPECIES = ["gorGor6", "panTro6", "ponAbe3"]
 
     # get multiple alignments positions
@@ -140,7 +146,7 @@ def get_multiple_alignments(debug=False):
         dict_this,
         dict_other,
         dict_third,
-    ) = combine_alignments.get_positions()
+    ) = combine_alignments.get_positions(chromosome)
 
     alignments = [None] * 3
 
@@ -148,7 +154,7 @@ def get_multiple_alignments(debug=False):
     for i, species in enumerate(SPECIES):
         logging.debug(species)
         input_file = "../data/hg38.{}.synNet.maf".format(species)
-        _, alignments[i] = process_data.get_alignments(input_file, species, CHROMOSOME)
+        _, alignments[i] = process_data.get_alignments(input_file, species, chromosome)
 
     logging.info("combining pairwise alignment sequences")
     """
@@ -204,10 +210,12 @@ def get_multiple_alignments(debug=False):
             assert len(human_gor_a) == len(human_pon_a) == len(pon_a[0])
             result.append(pon_a[0])
 
-            multiple_alignments.append((alignment, remove_gaps_in_multiple(result)))
-    print_result(multiple_alignments)
+            multiple_alignments.append(
+                (str(alignment), remove_gaps_in_multiple(result))
+            )
+    write_result(chromosome, multiple_alignments)
     return multiple_alignments
 
 
 if __name__ == "__main__":
-    get_multiple_alignments(True)
+    get_multiple_alignments("hg38.chr7", True)

@@ -100,18 +100,20 @@ def main():
     parser.add_argument(
         "--align", action="store_true", required=False
     )  # find base positions in pairwise alignments
+    parser.add_argument(
+        "-c", action="store", dest="chromosome", type=str, required=False
+    )
     parser.add_argument("--log", action="store_true", required=False, default=False)
 
     args = parser.parse_args()
     input_file = args.f
-    species = input_file.split(".")[1]
+    species = input_file.split("hg38.")[1][:7]
     print(species)
-
-    CHROMOSOME = "hg38.chr7"
 
     if args.chromo:
         get_chromosomes(input_file)
     if args.align:
+        CHROMOSOME = args.chromosome
         seq_info, _ = get_alignments(input_file, species, CHROMOSOME, args.log)
         print(CHROMOSOME)
         for sp, li in seq_info.items():

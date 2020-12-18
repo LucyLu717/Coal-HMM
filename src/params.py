@@ -7,7 +7,7 @@ tau2 = 1.5
 thtHC = 3
 thtHCG = 3
 div_time = 18
-x = 1 / exp(tau2 / thtHC)
+term = 1 / exp(tau2 / thtHC)
 
 
 """ Helpers """
@@ -1549,7 +1549,7 @@ def get_v2(rho_h, rho_m, rho_g):
 
 
 def get_psi():
-    psi = 1 - x
+    psi = 1 - term
     other = (1 - psi) / 3
     return np.log(psi), np.log(other)
 
@@ -1570,8 +1570,8 @@ def get_params(length):
     # v2 = 0.00656248
 
     psi, other = get_psi()
-    a = tau1 + thtHC - tau2 * x / (1 - x)
-    b = tau2 + tau2 * x / (1 - x)
+    a = tau1 + thtHC - tau2 * term / (1 - term)
+    b = tau2 + tau2 * term / (1 - term)
     c = div_time * 2 - a - b
     a_t = tau1 + tau2 + thtHCG / 3
     b_t = thtHCG

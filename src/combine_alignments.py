@@ -100,10 +100,10 @@ def combine_alignments2(new, third, dict_this, dict_other):
     return new_alignments, dict_this, dict_other, dict_third
 
 
-def get_positions(log=False):
+def get_positions(chromo, log=False):
     pos_lists = [None] * 3
     for i, species in enumerate(["gor", "pan", "pon"]):
-        inputs = read_input(OUTPUT_DIR + "output-" + species + ".output")
+        inputs = read_input(OUTPUT_DIR + "output-" + species + "-" + chromo + ".output")
         pos_lists[i] = inputs
     new_alignments, dict_this, dict_other = combine_alignments1(
         pos_lists[0], pos_lists[1]
@@ -125,9 +125,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Process pairwise alignment data from UCSC"
     )
+    parser.add_argument(
+        "-c", action="store", dest="chromosome", type=str, required=False
+    )
     parser.add_argument("--log", action="store_true", required=False, default=False)
     args = parser.parse_args()
-    get_positions(args.log)
+    get_positions(args.chromosome, args.log)
 
 
 if __name__ == "__main__":
