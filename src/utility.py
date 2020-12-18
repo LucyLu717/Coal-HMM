@@ -1,7 +1,7 @@
 STATES = ["HC1", "HC2", "HG", "CG"]  # Hidden states
 FIGS_DIR = "../figs/"
 OUTPUT_DIR = "../outputs/"
-colors = ["b", "g", "r", "c"]
+colors = ["b", "c", "g", "r"]
 combined_states = ["", "HC", "HG", "CG"]
 combined_colors = ["", "b", "g", "r"]
 """
